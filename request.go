@@ -1,7 +1,6 @@
 package request
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -78,23 +77,23 @@ type Params struct {
 	Client *http.Client
 }
 
+var defaultClient = &http.Client{
+	Timeout: time.Duration(5) * time.Second,
+}
+
 //Default: Method = GET, Client.Timeout = 5s
-func DoRequestDefault(url string, body []byte) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodGet, url, bytes.NewBuffer(body))
+func DoRequestDefault(url string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, body)
 	if err != nil {
 		return nil, err
 	}
-	cl := &http.Client{
-		Timeout: time.Duration(5) * time.Second,
-	}
-	return cl.Do(req)
+	return defaultClient.Do(req)
 }
 
-func (p *Params) DoRequestWithParams() (*http.Response, error) {
+func DoRequestWithParams(p *Params) (*http.Response, error) {
 	if p.Client == nil {
-		p.Client = http.DefaultClient
+		p.Client = defaultClient
 	}
-
 	//bytes.NewBuffer(p.Body)
 	req, err := http.NewRequest(p.Method, p.URL.String(), p.Body)
 	if err != nil {

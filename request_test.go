@@ -132,7 +132,7 @@ func TestRequest(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			res, err := tc.params.DoRequestWithParams()
+			res, err := DoRequestWithParams(tc.params)
 			if err != nil {
 				t.Fatal(err)
 			}
