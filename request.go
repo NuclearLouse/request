@@ -71,7 +71,7 @@ func (a *Address) String() string {
 
 type Params struct {
 	Method string
-	URL    *url.URL
+	URL    string
 	Body   io.Reader
 	Header map[string]string
 	Client *http.Client
@@ -82,20 +82,14 @@ var defaultClient = &http.Client{
 }
 
 //Default: Method = GET, Client.Timeout = 5s
-func DoRequestDefault(url string, body io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodGet, url, body)
-	if err != nil {
-		return nil, err
+func Do(p *Params) (*http.Response, error) {
+	if p.Method == "" {
+		p.Method = http.MethodGet
 	}
-	return defaultClient.Do(req)
-}
-
-func DoRequestWithParams(p *Params) (*http.Response, error) {
 	if p.Client == nil {
 		p.Client = defaultClient
 	}
-	//bytes.NewBuffer(p.Body)
-	req, err := http.NewRequest(p.Method, p.URL.String(), p.Body)
+	req, err := http.NewRequest(p.Method, p.URL, p.Body)
 	if err != nil {
 		return nil, err
 	}

@@ -60,7 +60,9 @@ func TestMakeEndpointAddress(t *testing.T) {
 func TestRequest(t *testing.T) {
 	addr := NewAddress("http", "pie.dev")
 
-	res, err := DoRequestDefault(addr.SetEndpoint("get").String(), nil)
+	res, err := Do(&Params{
+		URL: addr.SetEndpoint("get").URL().String(),
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +93,7 @@ func TestRequest(t *testing.T) {
 			name: "Не дефолтный метод с телом запроса",
 			params: &Params{
 				Method: http.MethodPost,
-				URL:    addr.SetEndpoint("post").URL(),
+				URL:    addr.SetEndpoint("post").URL().String(),
 				Body:   b,
 			},
 			expectedCode:   http.StatusOK,
@@ -102,7 +104,7 @@ func TestRequest(t *testing.T) {
 			name: "С установкой хедера",
 			params: &Params{
 				Method: http.MethodGet,
-				URL:    addr.SetEndpoint("headers").URL(),
+				URL:    addr.SetEndpoint("headers").URL().String(),
 				Header: map[string]string{
 					"User-Agent": "Bacon/1.0",
 				},
@@ -132,7 +134,7 @@ func TestRequest(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			res, err := DoRequestWithParams(tc.params)
+			res, err := Do(tc.params)
 			if err != nil {
 				t.Fatal(err)
 			}
