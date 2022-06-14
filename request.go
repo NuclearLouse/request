@@ -9,11 +9,11 @@ import (
 )
 
 type Address struct {
-	Proto     string
-	Host      string
-	Path      string
-	UserPass  *url.Userinfo
-	ValuesURL url.Values
+	Proto string
+	Host  string
+	// Path      string
+	UserPass *url.Userinfo
+	// ValuesURL url.Values
 }
 
 // http://www.example.com/api/v1/getUser?fname=foo&sname=bar
@@ -35,10 +35,9 @@ func NewAddress(proto, host string, userPass ...string) *Address {
 	}
 }
 
-func (a *Address) SetEndpoint(path string, keyval ...interface{}) *Address {
-	a.Path = path
+func (a *Address) SetEndpoint(path string, keyval ...interface{}) string {
+	args := url.Values{}
 	if len(keyval) >= 2 {
-		args := make(url.Values, len(keyval)/2+1)
 		switch len(keyval) {
 		case 2:
 			args.Set(fmt.Sprintf("%v", keyval[0]), fmt.Sprintf("%v", keyval[1]))
@@ -50,23 +49,15 @@ func (a *Address) SetEndpoint(path string, keyval ...interface{}) *Address {
 				args.Set(fmt.Sprintf("%v", keyval[i]), fmt.Sprintf("%v", keyval[i+1]))
 			}
 		}
-		a.ValuesURL = args
 	}
-	return a
-}
-
-func (a *Address) URL() *url.URL {
-	return &url.URL{
+	u := url.URL{
 		Scheme:   a.Proto,
 		Host:     a.Host,
-		Path:     a.Path,
+		Path:     path,
 		User:     a.UserPass,
-		RawQuery: a.ValuesURL.Encode(),
+		RawQuery: args.Encode(),
 	}
-}
-
-func (a *Address) String() string {
-	return a.URL().String()
+	return u.String()
 }
 
 type Params struct {
